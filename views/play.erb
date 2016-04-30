@@ -1,3 +1,8 @@
 <div align="center">
-<h1>Hello <%= @player_name %>, let's play RPS!<h1>
+  <h2>Hello <%= @player_name %>, let's play RPS!<br><br> Please choose what you want to play!</h2><br>
+    <form action="/play" method="post">
+      <input type="submit" name="rps" value="Rock"><br><br>
+      <input type="submit" name="rps" value="Paper"><br><br>
+      <input type="submit" name="rps" value="Scissors">
+    </form>
 </div>

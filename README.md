@@ -89,6 +89,68 @@ create play.erb
 Hello <%= @player_name %>, let's play RPS.
 </div>
 ```
+**Step 3 User Story 2**
+create a new web helper web_helpers.rb and put it into the spec helper
+
+```
+def sign_in_and_play
+  visit "/"
+  fill_in "player_name", :with => "Grig"
+  click_button "Submit"
+end
+```
+
+create a test to see the RPS choices make a feature play_spec.rb
+```
+feature 'Playing RPS' do
+  scenario 'see choices' do
+    sign_in_and_play
+    expect(page).to have_content 'Rock'
+    expect(page).to have_content 'Scissors'
+    expect(page).to have_content 'Paper'
+  end
+end
+```
+so my view for play.erb changes to
+```
+<div align="center">
+  <h2>Hello <%= @player_name %>, let's play RPS!<br><br> Please choose what you want to play!</h2><br>
+    <form action="/play" method="post">
+      <input type="submit" name="rps" value="Rock"><br><br>
+      <input type="submit" name="rps" value="Paper"><br><br>
+      <input type="submit" name="rps" value="Scissors">
+    </form>
+</div>
+```
+make another test confirming choice on another routes
+```
+scenario 'see what I selected after clicking' do
+  sign_in_and_play
+  click_button 'Rock'
+  expect(page).to have_content 'You have clicked Rock'
+end
+```
+changes to rps.rb
+
+```
+post '/play' do
+  session[:rps] = params[:rps]
+  redirect '/result'
+end
+
+get '/result' do
+  @rps = session[:rps]
+  erb(:result)
+end
+```
+make a result.erb
+
+```
+<div align="center">
+<h2>You have clicked <%= @rps %></h2>
+</div>
+```
+
 
 
 

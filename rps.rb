@@ -19,6 +19,19 @@ class RPS < Sinatra::Base
     erb(:play)
   end
 
+  post '/play' do
+    session[:rps] = params[:rps]
+    #player = Player.new(params[:player_name])
+    #player_2 = Player.new(params[:player_2_name])
+    redirect '/result'
+  end
+
+  get '/result' do
+    @rps = session[:rps]
+    erb(:result)
+  end
+
+
   # start the server if ruby file executed directly
   run! if app_file == $0
 end

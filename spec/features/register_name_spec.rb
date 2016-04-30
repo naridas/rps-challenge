@@ -1,8 +1,6 @@
 feature "Register name" do
   scenario "Input name" do
-    visit "/"
-    fill_in "player_name", :with => "Grig"
-    click_button "Submit"
-    expect(page).to have_text("Hello Grig, let's play RPS!")
+    sign_in_and_play
+    expect(page).to have_text("Grig")
   end
 end
