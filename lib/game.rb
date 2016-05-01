@@ -1,9 +1,9 @@
-
 class Game
 	attr_reader player
 
-	def initialize(player)
+	def initialize(player, computer = Computer.new)
     @player = player
+		@computer = computer
 	end
 
 	def self.create

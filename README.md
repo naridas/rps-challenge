@@ -122,7 +122,7 @@ so my view for play.erb changes to
     </form>
 </div>
 ```
-make another test confirming choice on another routes
+make another test confirming choice called result_spec.rb on another routes
 ```
 scenario 'see what I selected after clicking' do
   sign_in_and_play
@@ -149,6 +149,127 @@ make a result.erb
 <div align="center">
 <h2>You have clicked <%= @rps %></h2>
 </div>
+```
+then need to show what the computer chose
+```
+scenario 'see what Computer selected' do
+  allow_any_instance_of(Array).to receive(:sample).and_return('Scissors')
+  sign_in_and_play
+  click_button 'Rock'
+  expect(page).to have_content 'Computer chose Scissors'
+end
+```
+need something like this way you can see what the computer chose but this will cause problems since i need to start making a class to past this time unless i hardcode it.
+```
+<div align="center">
+<h2>You have clicked <%= @player_rps %><br><br>
+    Computer chose <%= @computer_rps %></h2>
+
+</div>
+```
+so will start making my classes which are game, player and computer
+lets start with player.rb and player_spec
+```
+require 'player'
+describe Player do
+  subject(:player) { Player.new("Grig") }
+
+  describe "#name" do
+    it "returns player's name" do
+      expect(player.name).to eq("Grig")
+    end
+  end
+end
+```
+then make the class
+```
+class Player
+  attr_reader :name
+
+  def initialize(name:)
+    @name = name
+  end
+
+end
+```
+change my rps.rb
+```
+post '/names' do
+  player = Player.new(params[:player_name])
+  redirect '/play'
+end
+```
+also want to be able to input my player_rps in player and see it so i know what choice they did
+```
+describe "#choice" do
+  it "returns player's choice" do
+    player.player_rps(rock)
+    expect(player.choice).to eq(rock)
+  end
+end
+```
+which changed my player class to
+```
+class Player
+  attr_reader :name, :choice
+
+  def initialize(name)
+    @name = name
+    @choice = nil
+  end
+
+  def player_rps(player_rps)
+    @choice = player_rps
+  end
+
+end
+
+```
+now have to make the computer class so the computer is able to chose a rps
+```
+require 'computer'
+
+describe Computer do
+  subject(:computer) { Computer.new }
+
+  describe "#choice" do
+    it "returns computer's choice" do
+      rps = computer.computer_rps
+      expect(computer.choice).to eq(rps)
+    end
+  end
+end
+```
+then make a computer class
+```
+require 'computer'
+
+describe Computer do
+  subject(:computer) { Computer.new }
+
+  describe "#choice" do
+    it "returns computer's choice" do
+      rps = computer.computer_rps
+      expect(computer.choice).to eq(rps)
+    end
+  end
+end
+
+```
+now have to create game class which interacts with computer and player
+
+
+so my game_spec.rb
+```
+
+```
+
+```
+post '/names' do
+  player = Player.new(params[:player_name])
+  @game = Game.create(player)
+  redirect '/play'
+end
 ```
 
 

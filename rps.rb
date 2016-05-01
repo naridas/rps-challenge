@@ -8,9 +8,8 @@ class RPS < Sinatra::Base
   end
 
   post '/names' do
-    session[:player_name] = params[:player_name]
-    #player = Player.new(params[:player_name])
-    #player_2 = Player.new(params[:player_2_name])
+    player = Player.new(params[:player_name])
+    @game = Game.create(player)
     redirect '/play'
   end
 
@@ -20,7 +19,8 @@ class RPS < Sinatra::Base
   end
 
   post '/play' do
-    session[:rps] = params[:rps]
+    session[:player_rps] = params[:player_rps]
+    session[:computer_rps] = params[:computer_rps]
     #player = Player.new(params[:player_name])
     #player_2 = Player.new(params[:player_2_name])
     redirect '/result'
@@ -28,6 +28,7 @@ class RPS < Sinatra::Base
 
   get '/result' do
     @rps = session[:rps]
+    @computer_rps =  session[:computer_rps]
     erb(:result)
   end
 
