@@ -1,10 +1,17 @@
 require 'sinatra/base'
+require './lib/player'
+require './lib/game'
+require './lib/computer'
 
 class RPS < Sinatra::Base
   enable :sessions
 
   get '/' do
     erb(:index)
+  end
+
+  before do
+    @game = Game.instance
   end
 
   post '/names' do
@@ -14,21 +21,17 @@ class RPS < Sinatra::Base
   end
 
   get '/play' do
-    @player_name = session[:player_name]
+    @game = Game.instance
     erb(:play)
   end
 
   post '/play' do
-    session[:player_rps] = params[:player_rps]
-    session[:computer_rps] = params[:computer_rps]
-    #player = Player.new(params[:player_name])
-    #player_2 = Player.new(params[:player_2_name])
+    @game.player.player_rps(params[:rps])
+    @game.computer.computer_rps
     redirect '/result'
   end
 
   get '/result' do
-    @rps = session[:rps]
-    @computer_rps =  session[:computer_rps]
     erb(:result)
   end
 

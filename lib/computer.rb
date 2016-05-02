@@ -1,8 +1,7 @@
 class Computer
   attr_reader :name, :choice
-
   def initialize
-    @array = ["Rock", "Paper", "Scissors"]
+    @array = Game::RPS
     @choice = nil
   end
 

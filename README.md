@@ -238,21 +238,30 @@ describe Computer do
       expect(computer.choice).to eq(rps)
     end
   end
+
+  describe "#computer_rps" do
+    it "sample an array" do
+      allow_any_instance_of(Array).to receive(:sample).and_return('Scissors')
+      expect(computer.computer_rps).to eq 'Scissors'
+    end
+  end
+
 end
 ```
 then make a computer class
 ```
-require 'computer'
-
-describe Computer do
-  subject(:computer) { Computer.new }
-
-  describe "#choice" do
-    it "returns computer's choice" do
-      rps = computer.computer_rps
-      expect(computer.choice).to eq(rps)
-    end
+class Computer
+  attr_reader :name, :choice
+  RPS = ["Rock", "Paper", "Scissors"]
+  def initialize
+    @array = RPS
+    @choice = nil
   end
+
+  def computer_rps
+    @choice = @array.sample
+  end
+
 end
 
 ```
@@ -261,14 +270,180 @@ now have to create game class which interacts with computer and player
 
 so my game_spec.rb
 ```
+require 'game'
+
+describe Game do
+  subject(:game) { described_class.new(player, computer) }
+  let(:player){ double :player }
+  let(:computer){ double :computer }
+
+
+  describe "#winner?" do
+    it "attacks other player" do
+      allow(player).to receive(:choice).and_return("Paper")
+      allow(computer).to receive(:choice).and_return("Rock")
+      expect(game.winner?).to eq true
+    end
+  end
+
+  describe "#draw?" do
+    it "attacks other player" do
+      allow(player).to receive(:choice).and_return("Paper")
+      allow(computer).to receive(:choice).and_return("Paper")
+      expect(game.draw?).to eq true
+    end
+  end
+
+  describe '#player' do
+    it 'retrieves the player' do
+      expect(game.player).to eq player
+    end
+  end
+end
+```
+then my game class
+```
+class Game
+	attr_reader :player, :computer
+	RPS = ["Rock", "Paper", "Scissors"]
+  BEATMAP = { 'Scissors' => 'Paper', 'Paper' => 'Rock', 'Rock' => 'Scissors' }
+	def initialize(player, computer = Computer.new)
+    @player = player
+		@computer = computer
+		@rules = BEATMAP
+	end
+
+	def draw?
+	  return true if draw
+		false
+	end
+
+	def winner?
+		return true if winner
+		false
+	end
+
+	def self.create(player, computer = Computer.new)
+		@game = Game.new(player, computer = Computer.new)
+	end
+
+	def self.instance
+		@game
+	end
+
+	private
+
+	def draw
+		@player.choice == @computer.choice
+	end
+
+	def winner
+		@rules[@player.choice] == @computer.choice
+	end
+end
 
 ```
+now i have all my classes now have to fix my routes
+```
+require 'sinatra/base'
+require './lib/player'
+require './lib/game'
+require './lib/computer'
+
+class RPS < Sinatra::Base
+  enable :sessions
+
+  get '/' do
+    erb(:index)
+  end
+
+  before do
+    @game = Game.instance
+  end
+
+  post '/names' do
+    player = Player.new(params[:player_name])
+    @game = Game.create(player)
+    redirect '/play'
+  end
+
+  get '/play' do
+    @game = Game.instance
+    erb(:play)
+  end
+
+  post '/play' do
+    @game.player.player_rps(params[:rps])
+    @game.computer.computer_rps
+    redirect '/result'
+  end
+
+  get '/result' do
+    erb(:result)
+  end
+
+
+  # start the server if ruby file executed directly
+  run! if app_file == $0
+end
 
 ```
-post '/names' do
-  player = Player.new(params[:player_name])
-  @game = Game.create(player)
-  redirect '/play'
+then need to make changes to result.erb
+```
+<div align="center">
+<h2>You have clicked <%= @game.player.choice %><br><br>
+    Computer chose <%= @game.computer.choice %></h2>
+<% if @game.winner? %>
+  <h1>You win!</h1>
+<% elsif @game.draw? %>
+  <h1>You draw!</h1>
+<% else @game.draw? %>
+  <h1>You lose!</h1>
+<% end %>
+<a href="/play">Play again!</a>
+</div>
+
+```
+tbh should of made some feature tests...
+
+```
+feature 'Results of RPS' do
+
+  scenario 'see what I selected after clicking' do
+    sign_in_and_play
+    click_button 'Rock'
+    expect(page).to have_content 'You have clicked Rock'
+  end
+
+  scenario 'see what Computer selected' do
+    allow_any_instance_of(Array).to receive(:sample).and_return('Scissors')
+    sign_in_and_play
+    click_button 'Rock'
+    expect(page).to have_content 'Computer chose Scissors'
+  end
+
+  scenario 'win' do
+    allow_any_instance_of(Array).to receive(:sample).and_return('Scissors')
+    sign_in_and_play
+    click_button 'Rock'
+    expect(page).to have_content 'You win!'
+  end
+
+  scenario 'lose' do
+    allow_any_instance_of(Array).to receive(:sample).and_return('Scissors')
+    sign_in_and_play
+    click_button 'Paper'
+    expect(page).to have_content 'You lose!'
+  end
+
+  scenario 'lose' do
+    allow_any_instance_of(Array).to receive(:sample).and_return('Scissors')
+    sign_in_and_play
+    click_button 'Scissors'
+    expect(page).to have_content 'You draw!'
+  end
+
+
 end
 ```
 

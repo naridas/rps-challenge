@@ -1,5 +1,12 @@
 <div align="center">
-<h2>You have clicked <%= @player_rps %><br><br>
-    Computer chose <%= @computer_rps %></h2>
-
+<h2>You have clicked <%= @game.player.choice %><br><br>
+    Computer chose <%= @game.computer.choice %></h2>
+<% if @game.winner? %>
+  <h1>You win!</h1>
+<% elsif @game.draw? %>
+  <h1>You draw!</h1>
+<% else @game.draw? %>
+  <h1>You lose!</h1>
+<% end %>
+<a href="/play">Play again!</a>
 </div>

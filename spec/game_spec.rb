@@ -1,22 +1,30 @@
 require 'game'
 
 describe Game do
-  subject(:game) { described_class.new(player_1, player_2) }
-  let(:player_1){ double :player }
-  let(:player_2){ double :player }
+  subject(:game) { described_class.new(player, computer) }
+  let(:player){ double :player }
+  let(:computer){ double :computer }
 
 
-  describe "#attack" do
+  describe "#winner?" do
     it "attacks other player" do
-      expect(player_2).to receive(:receive_damage)
-      game.attack
+      allow(player).to receive(:choice).and_return("Paper")
+      allow(computer).to receive(:choice).and_return("Rock")
+      expect(game.winner?).to eq true
     end
   end
 
-  describe '#player_1' do
-    it 'retrieves the first player' do
-      expect(game.player_1).to eq player_1
+  describe "#draw?" do
+    it "attacks other player" do
+      allow(player).to receive(:choice).and_return("Paper")
+      allow(computer).to receive(:choice).and_return("Paper")
+      expect(game.draw?).to eq true
     end
   end
 
+  describe '#player' do
+    it 'retrieves the player' do
+      expect(game.player).to eq player
+    end
+  end
 end

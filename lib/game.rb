@@ -1,28 +1,38 @@
 class Game
-	attr_reader player
-
+	attr_reader :player, :computer
+	RPS = ["Rock", "Paper", "Scissors"]
+  BEATMAP = { 'Scissors' => 'Paper', 'Paper' => 'Rock', 'Rock' => 'Scissors' }
 	def initialize(player, computer = Computer.new)
     @player = player
 		@computer = computer
+		@rules = BEATMAP
 	end
 
-	def self.create
-		@game = Game.new(player)
+	def draw?
+	  return true if draw
+		false
+	end
+
+	def winner?
+		return true if winner
+		false
+	end
+
+	def self.create(player, computer = Computer.new)
+		@game = Game.new(player, computer = Computer.new)
 	end
 
 	def self.instance
 		@game
 	end
 
-end
+	private
 
-# def rps(p1, p2)
-#   beatmap = { 'scissors' => 'paper', 'paper' => 'rock', 'rock' => 'scissors' }
-#   if p1 == p2
-#     "Draw!"
-#   elsif beatmap[p1] == p2
-#     "Player 1 won!"
-#   else
-#     "Player 2 won!"
-#   end
-# end
+	def draw
+		@player.choice == @computer.choice
+	end
+
+	def winner
+		@rules[@player.choice] == @computer.choice
+	end
+end
